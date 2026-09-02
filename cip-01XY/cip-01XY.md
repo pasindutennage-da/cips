@@ -8,7 +8,7 @@ Author(s):
   Moritz Kiefer
 Type: Standards Track  
 Status: Pending
-Created: 2026-08-26 
+Created: 2026-xx-xx 
 Approved: 2026-xx-xx 
 License: CC0-1.0
 </pre>
@@ -16,16 +16,15 @@ License: CC0-1.0
 
 ## Abstract
 
-- What does "Public Synchronizer" mean for the Canton Network.
+This CIP proposes the changes required to make the sequencers public on the Global Synchronizer, allowing anyone on the internet to talk to them.
 
-- The transition from IP-whitelist-based access control to traffic-based access.
+Previously, we used IP whitelisting to allow validators to connect to the global synchronizer. This CIP removes the need for IP whitelisting, and instead uses the Canton protocol to ensure that only validators with correct authorization can connect to the synchronizer.
 
-- Sybil Resistance; explain what sybil resistence mean; buying minimum MemberTraffic replaces IP whitelisting as the Sybil resistance mechanism.
+To achieve this, we use existing `MemberTraffic` contracts to enable validators to connect to the sequencers. Therefore, only validators that have purchased sufficient traffic will receive the necessary authorization to join the global synchronizer, providing built-in Sybil resistance.
 
-- Validator Onboarding and offboarding now require 2f+1 majority SV consensus, removing the unilateral "sponsor SV" model.
+Furthermore, in the previous validator onboarding flow, a validator must ask a sponsor SV for a secret, making onboarding dependent on a single SV. We replace this model so that new validator onboarding and offboarding are now approved by a majority (2f+1) of SVs.
 
-- The proposal includes a one-time manual network switchover to support the enforcement of traffic-based onboarding.
-
+Finally, this CIP includes the steps to realize this transition on the Global Synchronizer, which includes coordinated, lock-step manual processes.
 
 ## Specification
 
