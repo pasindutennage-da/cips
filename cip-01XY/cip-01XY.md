@@ -44,7 +44,7 @@ If a validator is permanently unpermissioned, it can be repermissioned at a late
 
 ### Deployment Security
 
-- The deployment security details required to expose the sequencer APIs to the public internet are discussed and implemented in CIP-01XZ.
+The deployment security details required to expose the sequencer APIs to the public internet are discussed and implemented in CIP-01XZ.
 
 ### Network Transition Timeline
 
@@ -65,37 +65,37 @@ On DevNet, `/v0/devnet/onboard/validator/purchase-traffic` endpoint on the SV ap
 
 ### Rollback
 
-- In the event of an emergency, rolling back the network back to `UnrestrictedOpen` requires manual, off-chain coordination among Super Validator operators. The SVs must coordinate to manually switch the Canton `DynamicSynchronizerParameters` back to `UnrestrictedOpen`.
+In the event of an emergency, rolling back the network back to `UnrestrictedOpen` requires manual, off-chain coordination among Super Validator operators. The SVs must coordinate to manually switch the Canton `DynamicSynchronizerParameters` back to `UnrestrictedOpen`.
 
 
 ## Motivation
 
 ### Governance
 
-- Onboarding and offboarding validators must be a decentralized network decision, not a unilateral one by a single sponsor.
+The existing secret-based onboarding model makes a single sponsor SV unilaterally responsible for admitting a new validator. This CIP ensures that onboarding and offboarding validators is a decentralized network decision requiring a 2f+1 SV majority, removing the implicit liability of a single sponsor SV.
 
 ### Onboarding Speed
 
-- Manual secret generation by sponser SV doesn't scale as network grows.
-- IP whitelisting is a manual bottleneck, and doesn't scale when network grows
+The manual generation of onboarding secrets by a sponsor SV is a time-consuming process that cannot scale as the network expands. 
+Furthermore, maintaining static IP whitelists creates a significant operational bottleneck, severely delaying the speed at which new validators can join the network.
  
 ## Rationale
 
-- Why Canton 3.X: It natively supports the RestrictedOpen synchronizer state and ParticipantSynchronizerPermission topologies.
+- Why Canton 3.X: This version supports the `RestrictedOpen` synchronizer state and the `ParticipantSynchronizerPermission` topology transactions required to make sequencers public.
 
-- Why MemberTraffic: It leverages an existing network mechanic for Sybil resistance
+- Why `MemberTraffic`: Using `MemberTraffic` leverages an existing network mechanism to provide Sybil resistance, tying validator network usage directly to their access rights without introducing new concepts.
 
-- Why drop IP whitelists: Because access control is now handled by the on-chain logic, allowing for true public sequencers.
+- Why drop IP whitelists: Because access control is now securely handled by Canton's on-chain logic, network-layer firewalls are no longer necessary to block unauthorized validators. This allows operators to run sequencers on the open internet.
 
 ## Backwards Compatibility
 
-- APIs: Existing Validator and Scan APIs remain unchanged for applications.
+- Existing Validator and Scan APIs remain unchanged for applications using them, ensuring no disruption for downstream applications.
 
-- Operational impact: Hard impact on existing validators if they do not hold MemberTraffic at the time of the network switchover, they will experience downtime until someone purchase traffic for them.
+- Making sequencers public imposes a hard operational impact on existing validators that do not hold a valid `MemberTraffic` contract with sufficient traffic, at the time of the network switchover. These validators will experience synchronizer downtime until new traffic is purchased for their participant ID.
 
 ## Reference Implementation
 
-Development of the code enabling Public Synchronizer was funded in part by the Canton Foundation Development Fund, via a grant XXX  for Public Synchronizer.
+Development of the code enabling Public Sequencer was funded in part by the Canton Foundation Development Fund, via a grant XXX.
 
 The Splice 0.X.X code can be found at https://github.com/canton-network/splice/release-line-0.X.X
 
@@ -108,5 +108,5 @@ This CIP is licensed under [CC0-1.0: Creative Commons CC0 1.0 Universal](https:/
 
 ## Changelog
 
-[//]: # (- 2026-XX-XX: Approved)
+- 2026-XX-XX: Approved
 - 2026-XX-XX: Initial draft v1
