@@ -2,7 +2,7 @@
 
 <pre>
 Number: CIP-01XY
-Title: Public Sequencer and Scan on the Global Synchronizer
+Title: Traffic-based validator onboarding for making sequencers public on the Global Synchronizer
 Author(s):  
   Pasindu Tennage
   Moritz Kiefer
@@ -16,15 +16,15 @@ License: CC0-1.0
 
 ## Abstract
 
-- What does "Permissioned Synchronizer" mean for the Canton Network.
+- What does "Public Synchronizer" mean for the Canton Network.
 
-- The transition from IP-whitelist-based access control to permissioned, traffic-based access.
+- The transition from IP-whitelist-based access control to traffic-based access.
 
-- Sybil Resistance; buying minimum MemberTraffic replaces IP whitelisting as the Sybil resistance mechanism.
+- Sybil Resistance; explain what sybil resistence mean; buying minimum MemberTraffic replaces IP whitelisting as the Sybil resistance mechanism.
 
-- Onboarding and offboarding now require 2f+1 majority SV consensus, removing the unilateral "sponsor SV" model.
+- Validator Onboarding and offboarding now require 2f+1 majority SV consensus, removing the unilateral "sponsor SV" model.
 
-- The proposal includes a one-time manual network switchover from unpermissioned to permissioned.
+- The proposal includes a one-time manual network switchover to support the enforcement of traffic-based onboarding.
 
 
 ## Specification
@@ -37,20 +37,23 @@ License: CC0-1.0
 
 - Two types of revocation (temporary vs. permanent) utilizing the ValidatorUnpermission contract.
 
-- Repermissioning validators once permemently unpermissioned 
+- Repermissioning validators once permemently unPublic 
 
 
 ### Deployment Security
 
-- Safety measures: CloudArmor rate limits (per IP, per endpoint, global), and minimal DB user privileges
+- Deployment security details are discussed and implemented in CIP 01XZ.
 
-### Network Transition
+### Network Transition Timeline
 
 - Prerequisites: Canton 3.X and Splice 0.x.x releases.
-- Phase 1 (Topology Submission): SVs use a feature flag (submitSynchronizerPermission: true) to automatically submit permissions for all existing validators holding MemberTraffic.
-- Phase 2 (Switchover): SVs set a second flag (requireSynchronizerPermissioned: true) to change the Canton DynamicSynchronizerParameters to RestrictedOpen.
-- Handling Unpermissioned Nodes: existing validators without MemberTraffic will lose access and must purchase MemberTraffic via standard channels to trigger automatic permissioning.
 
+- Switching to new onboarding flow
+- Deprecating the old onboarding flow
+- Phase 1 (Topology Submission): SVs use a feature flag (submitSynchronizerPermission: true) to automatically submit permissions for all existing validators holding MemberTraffic.
+- Phase 2 (Switchover): SVs set a second flag (requireSynchronizerPublic: true) to change the Canton DynamicSynchronizerParameters to RestrictedOpen.
+- Handling UnPublic Nodes: existing validators without MemberTraffic will lose access and must purchase MemberTraffic via standard channels to trigger automatic permissioning.
+- Drop whitelists
 
 ### DevNet Exception
 
