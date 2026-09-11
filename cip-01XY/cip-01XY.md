@@ -18,23 +18,29 @@ License: CC0-1.0
 
 This CIP proposes the changes required to make the sequencers public on the global synchronizer.
 
-Previously, global synchronizer used IP whitelisting to allow selected validators to connect to the sequencers. This CIP removes the need for IP whitelisting, and instead uses Canton protocol features to ensure that only validators that have previously bought traffic and have not been explicitly blacklisted can connect to the synchronizer.
+Previously, validator onboarding relied on two manual processes: (1) static IP whitelisting step by SV operators and (2) the unilateral generation of an onboarding secret by a single sponsor SV.
 
-By ensuring that only validators that have purchased sufficient traffic can connect to the global synchronizer we provide built-in Sybil resistance.
-
-Furthermore, in the existing validator onboarding flow, a validator must request a sponsor SV for a secret, making onboarding dependent on a single SV. We replace this single SV dependency by an automated decentralized process.
+This CIP replaces both of these dependencies with an automated, decentralized process. By leveraging Canton protocol features, the need for IP whitelists and sponsor-generated secrets is removed. Instead, a validator is automatically granted synchronizer access upon purchasing a minimum amount of traffic, ensuring a baseline financial commitment to the network.
 
 Finally, this CIP includes the steps to realize the necessary transition on the global synchronizer, which includes coordinated and lock-step sequence of tasks.
 
 ## Specification
 
-### Protocol
+### Onboarding Flow
 
 The existing validator onboarding model relies on a single sponsor SV to unilaterally onboard a new validator by generating an onboarding secret. This CIP replaces the sponsor model with a decentralized flow.
 
-Instead of secrets, new validator onboarding is now driven by traffic purchases. When a `MemberTraffic` contract is created for a validator, with sufficient traffic, as publicly defined in the ledger, SV automation observes the `MemberTraffic` contract and automatically submits a `ParticipantSynchronizerPermission` topology transaction for the validator's participant ID. Once confirmed by a majority of SVs, the validator is permitted to connect to the synchronizer.
+Instead of secrets, new validator onboarding is now driven by traffic purchases. The high-level onboarding flow works as follows:
 
-To handle validator offboarding, SVs use a new `ValidatorUnpermission` contract to vote on revoking a validator's synchronizer access. `ValidatorUnpermission` contract supports two modes of revocation:
+- A prospective validator operator spins up their validator node to generate their cryptographic keys and obtain a unique participant ID.
+
+- An existing party on the network holding Canton coins purchases traffic for that new participant ID.
+
+- This traffic purchase automatically triggers the permissioning process, allowing the validator to connect to the global synchronizer.
+
+Concretely, when the `MemberTraffic` contract is created with sufficient traffic (as publicly defined in the ledger), SV automation observes this contract and automatically submits a `ParticipantSynchronizerPermission` topology transaction for the validator's participant ID. Once confirmed by a majority of SVs, the validator's connection is accepted.
+
+In the event that SVs detect network abuse by a validator, SVs can collectively decide to offboard the offending validator. To handle validator offboarding, SVs use a new `ValidatorUnpermission` contract to vote on revoking a validator's synchronizer access. `ValidatorUnpermission` contract supports two modes of revocation:
 
 - Temporary: Suspend the validator's access until a specific time by setting the `loginAfter` parameter on the `ParticipantSynchronizerPermission`.
 - Permanent: Fully revoke the `ParticipantSynchronizerPermission` topology state.
@@ -69,13 +75,13 @@ In the event of unexpected issues with the new onboarding mode, rolling back the
 
 ### A Public Network
 
-A decentralized network must be public and open, and the participation should not require manual, out-of-ledger gatekeeping like IP whitelisting. This CIP ensures anyone can join the network seamlessly based on protocol-level rules (`MemberTraffic`) rather than manual administrative approval.
+A decentralized network must be public and open, and the participation should not require manual, off-ledger gatekeeping like IP whitelisting. This CIP ensures anyone can join the network seamlessly based on protocol-level rules (`MemberTraffic`) rather than manual administrative approval.
 
 ### Governance
 
 The existing secret-based onboarding model makes a single sponsor SV unilaterally responsible for admitting a new validator. This CIP ensures that onboarding and offboarding validators is a decentralized process.
 
-### Onboarding Speed
+### Operational Overhead
 
 The manual generation of onboarding secrets by a sponsor SV is a time-consuming process that does not scale as the network expands. 
 Furthermore, maintaining static IP whitelists creates a significant operational bottleneck, severely delaying the speed at which new validators can join the network.
@@ -84,7 +90,7 @@ Furthermore, maintaining static IP whitelists creates a significant operational 
 
 - Why Canton 3.X: This version supports the `RestrictedOpen` synchronizer state and the `ParticipantSynchronizerPermission` topology transaction required to make sequencers public.
 
-- Why `MemberTraffic`: To prevent attackers from freely spinning up thousands of fake nodes (Sybil attacks), joining the network must have a cost. Since validators already purchase `MemberTraffic` to transact, we reuse this existing financial requirement as the economic barrier to entry rather than inventing a new mechanism.
+- Why `MemberTraffic`: To prevent attackers from misusing the global synchronizer, joining the network must have a cost. Since validators already purchase `MemberTraffic` to transact, we reuse this existing financial requirement as the economic barrier to entry rather than inventing a new mechanism.
 
 - Why drop IP whitelists: Because access control is now securely handled by the on-chain logic, network-layer firewalls are no longer necessary to block unauthorized validators. This allows operators to run sequencers on the open internet.
 
